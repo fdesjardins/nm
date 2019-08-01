@@ -1,15 +1,16 @@
 {
-  "name": "nm",
-  "description": "nm",
+  "name": "tfrs",
+  "description": "tfrs",
   "version": "0.0.0",
+  "private": true,
   "author": {
     "name": "Forrest Desjardins",
     "email": "desjardinsfg@gmail.com",
     "url": "github.com/fdesjardins"
   },
   "dependencies": {
-    "cheerio": "^1.0.0-rc.2",
-    "superagent": "^5.1.0"
+    "superagent": "^5.1.0",
+    "xml-js": "^1.6.11"
   },
   "devDependencies": {
     "chai": "^4.2.0",
@@ -58,8 +59,8 @@
       "text"
     ]
   },
-  "repository": "fdesjardins/nm",
+  "repository": "FAA-Aviation-Data-Portal/packages",
   "scripts": {
-    "test": "standard *.js && nyc ./node_modules/.bin/mocha --opts mocha.opts test.js"
+    "test": "standard *.js && nyc mocha --opts mocha.opts test.js"
   }
 }

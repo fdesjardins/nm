@@ -1,78 +1,36 @@
 const superagent = require('superagent')
-const cheerio = require('cheerio')
+const convert = require('xml-js')
 
-const baseURI = 'http://rvr.fly.faa.gov'
-const apiURI = `${baseURI}/cgi-bin/rvr-details.pl`
+const baseURI = 'https://tfr.faa.gov/save_pages/'
 
 // Main method / shortcut to fetch
-const rvr = (module.exports = airportId => {
-  return rvr.fetch(airportId)
+const tfrs = (module.exports = id => {
+  return tfrs.fetch(id)
 })
 
-rvr.fetch = airportId => {
-  return superagent
-    .get(`${apiURI}?airport=${airportId}`)
-    .then(response => {
-      return {
-        airportId,
-        ...parse(response.text)
-      }
-    })
-    .catch(err => {
-      console.err(`Error fetching RVR values from ${apiURI}`, err)
-    })
+tfrs.fetch = async id => {
+  try {
+    const response = await superagent
+      .get(`${baseURI}/detail_${id.split('/').join('_')}.xml`)
+
+    const result = parse(response.body
+      .toString()
+      .replace(/<txtDescrModern[\s\S]*txtDescrModern>/g, ''))
+
+    return {
+      id,
+      ...result
+    }
+  } catch (err) {
+    console.error(`Error fetching TFR values from ${baseURI}`, err)
+  }
 }
 
 // Parse the response HTML from http://rvr.fly.faa.gov
-const parse = html => {
-  const $ = cheerio.load(html)
+const parse = xml => {
+  const js = convert.xml2js(xml, {
+    compact: true
+  })
 
-  let lastUpdated = null
-
-  const rvrValues = $('table')
-    .toArray()
-    .map(table => {
-      const rows = $(table)
-        .find('tr')
-        .toArray()
-
-      if (rows.length === 1) {
-        const [ time, date ] = $(table)
-          .find('th')
-          .toArray()
-          .map(th => th.children[0].data)
-
-        if (time && date) {
-          lastUpdated = {
-            date,
-            time
-          }
-        }
-      }
-
-      return rows.slice(1).map(r => {
-        const runway = $(r)
-          .find('th')
-          .toArray()
-
-        const columns = $(r)
-          .find('td')
-          .toArray()
-
-        return {
-          RWY: runway[0].children[0].data,
-          TD: columns[0].children[0].data,
-          MP: columns[1].children[0].data,
-          RO: columns[2].children[0].data,
-          E: columns[3].children[0].data,
-          C: columns[4].children[0].data
-        }
-      })
-    })
-    .filter(x => x.length > 0)[0]
-
-  return {
-    lastUpdated,
-    rvrValues
-  }
+  return js
 }

@@ -1,20 +1,13 @@
 /* global describe, it */
 
 const assert = require('chai').assert
-const rvr = require('./index')
+const tfrs = require('./index')
 
-describe('rvr', () => {
+describe('tfrs', () => {
   it('should exist', () => {
-    assert(rvr !== undefined)
+    assert(tfrs !== undefined)
   })
   it('should expose a fetch function', () => {
-    assert(rvr.fetch !== undefined)
-  })
-  it('should fetch RVR values', async () => {
-    return rvr('LAX').then(values => {
-      assert(values.airportId === 'LAX')
-      assert(values.lastUpdated !== null)
-      assert(values.rvrValues.length > 0)
-    })
+    assert(tfrs.fetch !== undefined)
   })
 })
